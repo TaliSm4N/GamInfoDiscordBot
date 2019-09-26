@@ -1,0 +1,22 @@
+{
+  "name": "gaminfodiscordbot",
+  "version": "0.1.0",
+  "description": "",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TaliSm4N/GamInfoDiscordBot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TaliSm4N/GamInfoDiscordBot/issues"
+  },
+  "homepage": "https://github.com/TaliSm4N/GamInfoDiscordBot#readme",
+  "dependencies": {
+    "discord.js": "^11.5.1"
+  }
+}
