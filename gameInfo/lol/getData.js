@@ -7,11 +7,13 @@ const header = {
 
 class getData{
 	static async Summoner(name){
-		const info = await axios.get(URL['BASE']+URL['SUMMONER']+name,{headers:header})
+		console.log("in summoner")
+		console.log(name)
+		const info = await axios.get(encodeURI(URL['BASE']+URL['SUMMONER']+name),{headers:header})
 		return info.data
 	}
 	static async League(id){
-		const league = await axios.get(URL['BASE']+URL['LEAGUE']+id,{headers:header});
+		const league = await axios.get(encodeURI(URL['BASE']+URL['LEAGUE']+id),{headers:header});
 		var info={};
 		for(var i in league.data){
 			if(league.data[i]["queueType"]==="RANKED_SOLO_5x5"){
@@ -27,17 +29,27 @@ class getData{
 		return info;
 	}
 	static async MatchList(id,eIndex){
-		const matchList = await axios.get(URL['BASE']+URL['MATCHLIST']+id+"?endIndex="+eIndex,{headers:header})
+		console.log("get matchList")
+		console.log(URL['BASE']+URL['MATCHLIST']+id+"?endIndex="+eIndex)
+		const matchList = await axios.get(encodeURI(URL['BASE']+URL['MATCHLIST']+id+"?endIndex="+eIndex),{headers:header})
 		let info = matchList.data["matches"];
 
 		return info;
 	}
 
 	static async Match(m_id){
-		const match = await axios.get(URL['BASE']+URL['MATCH']+m_id,{headers:header})
+		//		console.log("match")
+		const match = await axios.get(encodeURI(URL['BASE']+URL['MATCH']+m_id),{headers:header})
 		let info = match.data;
 
 		return info;
+	}
+
+	static async CDN(){
+		const cdnData = await axios.get(encodeURI(URL['DATA']));
+		console.log("cdn",cdnData)
+
+		return cdnData.data;
 	}
 }
 

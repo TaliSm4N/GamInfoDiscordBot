@@ -35,7 +35,7 @@ router.get('/summoner/:name',async (req,res)=>{
 	}
 	data["current"]={}
 	data["current"]["win"]=c_win;
-	data["current"]["c_lose"]=c_lose;
+	data["current"]["lose"]=c_lose;
 
 	//let queueType = ""
 

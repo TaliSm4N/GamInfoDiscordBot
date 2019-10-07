@@ -8,7 +8,7 @@ client.once('ready',()=>{
 	console.log('Ready!');
 });
 
-client.on('message',(message)=>{
+client.on('message', async (message)=>{
 	console.log(message)
 	console.log(process.env.PREFIX)
 	if(!message.content.startsWith(process.env.PREFIX)||message.author.bot) return;
@@ -26,7 +26,10 @@ client.on('message',(message)=>{
 			{
 				case 'id':
 				case 'i':
-					message.channel.send(LOL.summoner(args[1]));
+					var embedMsg = await LOL.summoner(args[1]);
+					message.channel.send({embed:embedMsg});
+
+					//message.channel.send(await LOL.summoner(args[1]));
 					break;
 			}
 			break;
