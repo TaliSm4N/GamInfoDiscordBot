@@ -1,6 +1,8 @@
 const axios = require('axios')
 const Discord = require('discord.js')
 const getData = require('../../gameInfo/lol/getData')
+const queueId = require('./queueId.json')
+//const emblem = new Discord.Attachment('./bot/lol/emblem')
 //const {URL} = require('../config.json')
 //require(dotenv).config()
 
@@ -19,6 +21,7 @@ class lol{
 
 		console.log("summoner")
 
+		console.log("id",summoner.id)
 		var league = await getData.League(summoner.id)
 		console.log("league")
 		data['queue']=league;
@@ -30,15 +33,38 @@ class lol{
 		for(var i in matchList){
 			var m_info = await getData.Match(matchList[i].gameId);
 
+			if(i==0){
+				var last_match = {}
+				last_match.queueId=m_info.queueId
+				last_match.min = parseInt(m_info.gameDuration/60)
+				last_match.sec = m_info.gameDuration%60
+				
+				for(var j in matchList)
+					if(m_info.participantIdentities[j].player.summonerName===summoner.name)
+						break;
+				last_match.champ = await getData.Champion(m_info.participants[j].championId)
+				last_match.stat = m_info.participants[j].stats
+
+				var last_match_str = `${queueId[last_match.queueId]}<${last_match.stat.win?'승':'패'}>(${last_match.min}분${last_match.sec}초)
+				${last_match.champ.name} lvl.${last_match.stat.champLevel}
+				KDA:${last_match.stat.kills}/${last_match.stat.deaths}/${last_match.stat.assists}[CS:${parseInt(last_match.stat.totalMinionsKilled+last_match.stat.neutralMinionsKilled)}]`
+			}
 			if(await winCheck(m_info,summoner.name))
 				c_win++;
 			else
 				c_lose++;
+
 		}
 		data['current']={}
 		data['current']['win']=c_win;
 		data['current']['lose']=c_lose;
-		console.log(data)
+
+		console.log("id",summoner.id)
+		const mastery = await getData.Mastery(summoner.id,3);
+		let mastery_str = `전체 숙련도 [${mastery.all}]`
+		for(var i in mastery.master){
+			mastery_str+=`\n${parseInt(i)+1}. ${mastery.master[i].name}[${mastery.master[i].level}]:${mastery.master[i].point}`
+		}
 
 		var embed = {
 			author:{
@@ -52,8 +78,8 @@ class lol{
 					inline:true
 				},
 				{
-					name: '최근 '+(c_win+c_lose)+'게임',
-					value: c_win+'승 '+c_lose+'패('+(c_win*100/(c_win+c_lose)).toFixed(2)+'%)',
+					name: `최근 ${c_win+c_lose}게임`,
+					value: `${c_win}승 ${c_lose}패(${(c_win*100/(c_win+c_lose)).toFixed(2)}%)`,
 					inline:true
 				},
 			]
@@ -96,9 +122,9 @@ class lol{
 			}
 			embed.fields.push({
 				name:'솔로 랭크',
-				value: league.solo.tier+' '+league.solo.rank + ' '+ league.solo.leaguePoints+'LP\n'+
-					league.solo.wins+'승 '+league.solo.losses+'패\n' + 
-					'승률: '+(league.solo.wins*100/(league.solo.wins+league.solo.losses)).toFixed(2)+'%',
+				value: `${league.solo.tier} ${league.solo.rank} ${league.solo.leaguePoints}LP
+				${league.solo.wins}승 ${league.solo.losses}패
+				승률: ${(league.solo.wins*100/(league.solo.wins+league.solo.losses)).toFixed(2)}%`,
 				inline:true
 			})
 		}
@@ -112,12 +138,22 @@ class lol{
 		} else {
 			embed.fields.push({
 				name:'자유 랭크',
-				value: league.flex.tier+' '+league.flex.rank + ' '+ league.flex.leaguePoints+'LP\n'+
-					league.flex.wins+'승 '+league.flex.losses+'패\n' + 
-					'승률: '+(league.flex.wins*100/(league.flex.wins+league.flex.losses)).toFixed(2)+'%',
+				value: `${league.flex.tier} ${league.flex.rank} ${league.flex.leaguePoints}LP
+				${league.flex.wins}승 ${league.flex.losses}패
+				승률: ${(league.flex.wins*100/(league.flex.wins+league.flex.losses)).toFixed(2)}%`,
 				inline:true
 			})
 		}
+		embed.fields.push({
+			name:'숙련도',
+			value:mastery_str,
+			inline:true
+		})
+		embed.fields.push({
+			name:'마지막 게임',
+			value:last_match_str,
+			inline:true
+		})
 			/*
 		if(league.tft===undefined){
 			embed.fields.push({
@@ -136,10 +172,18 @@ class lol{
 		}
 		*/
 		embed.thumbnail={}
-
-		embed.thumbnail.url = embed.author.icon_url
+		if(league.solo!==undefined){
+			//embed.thumbnail.url = `attachment://Emblem_${league.solo.tier}.png`
+			embed.thumbnail.url = embed.author.icon_url
+		} else if(league.flex !== undefined){
+			//embed.thumbnail.url = `attachment://Emblem_${league.solo.flex}.png`
+			embed.thumbnail.url = embed.author.icon_url
+		} else {
+			embed.thumbnail.url = embed.author.icon_url
+		}
 		
-		console.log("icon----",embed.author.icon_url)
+		//		console.log("icon----",embed.author.icon_url)
+		console.log(summoner);
 		return embed;
 		//return name
 	}

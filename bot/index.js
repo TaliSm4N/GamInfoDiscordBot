@@ -1,7 +1,6 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
 const LOL = require('./lol')
-//const {prefix, token} = require('./config.json');
 require('dotenv').config();
 
 client.once('ready',()=>{
@@ -26,8 +25,13 @@ client.on('message', async (message)=>{
 			{
 				case 'id':
 				case 'i':
-					var embedMsg = await LOL.summoner(args[1]);
-					message.channel.send({embed:embedMsg});
+					var name = '';
+					for(let i = 1; i<args.length;i++)
+					{
+						name+=args[i]+' ';
+					}
+					var msg = await LOL.summoner(name);
+					message.channel.send({embed:msg});
 
 					//message.channel.send(await LOL.summoner(args[1]));
 					break;
@@ -36,6 +40,6 @@ client.on('message', async (message)=>{
 	}
 })
 
-//client.login(token);
+client.login(process.env.TOKEN);
 
 module.exports = client;

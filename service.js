@@ -14,4 +14,4 @@ GameInfoApi.listen(PORT,err=>{
 });
 
 //discord bot on
-bot.login(process.env.TOKEN);
+//bot.login(process.env.TOKEN);
